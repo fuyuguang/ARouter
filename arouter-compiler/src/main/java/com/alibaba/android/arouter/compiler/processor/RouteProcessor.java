@@ -93,6 +93,7 @@ public class RouteProcessor extends BaseProcessor {
             }
         }
 
+        /** com.alibaba.android.arouter.facade.template.IProvider  */
         iProvider = elementUtils.getTypeElement(Consts.IPROVIDER).asType();
 
         logger.info(">>> RouteProcessor init. <<<");
@@ -145,6 +146,11 @@ public class RouteProcessor extends BaseProcessor {
 
                ```Map<String, Class<? extends IRouteGroup>>```
              */
+            /**
+             {@link com.alibaba.android.arouter.facade.template.IRouteRoot}
+             void loadInto(Map<String, Class<? extends IRouteGroup>> routes);
+             */
+
             ParameterizedTypeName inputMapTypeOfRoot = ParameterizedTypeName.get(
                     ClassName.get(Map.class),
                     ClassName.get(String.class),
@@ -157,6 +163,14 @@ public class RouteProcessor extends BaseProcessor {
             /*
 
               ```Map<String, RouteMeta>```
+             */
+            /**
+             {@link com.alibaba.android.arouter.facade.template.IProviderGroup}
+             void loadInto(Map<String, RouteMeta> providers);
+
+             {@link com.alibaba.android.arouter.facade.template.IRouteGroup}
+             void loadInto(Map<String, RouteMeta> atlas);
+
              */
             ParameterizedTypeName inputMapTypeOfGroup = ParameterizedTypeName.get(
                     ClassName.get(Map.class),
@@ -186,9 +200,13 @@ public class RouteProcessor extends BaseProcessor {
                 RouteMeta routeMeta;
 
                 // Activity or Fragment
+                /** 测试是否第一个TypeMirror是第二个TypeMirror的子类型.任何类型都被认为是它自身的子类型
+                 属于 activity 或 fragment  的类型才 遍历*/
                 if (types.isSubtype(tm, type_Activity) || types.isSubtype(tm, fragmentTm) || types.isSubtype(tm, fragmentTmV4)) {
                     // Get all fields annotation by @Autowired
+                    /** 注解名 ： 真实的类型  */
                     Map<String, Integer> paramsType = new HashMap<>();
+                    /** 注解名 ： 真实的注解类型  */
                     Map<String, Autowired> injectConfig = new HashMap<>();
                     injectParamCollector(element, paramsType, injectConfig);
 
@@ -201,7 +219,7 @@ public class RouteProcessor extends BaseProcessor {
                         logger.info(">>> Found fragment route: " + tm.toString() + " <<<");
                         routeMeta = new RouteMeta(route, element, RouteType.parse(FRAGMENT), paramsType);
                     }
-
+                    /** 该元素上所有的注解，存到routeMeta 中   */
                     routeMeta.setInjectConfig(injectConfig);
                 } else if (types.isSubtype(tm, iProvider)) {         // IProvider
                     logger.info(">>> Found provider route: " + tm.toString() + " <<<");
@@ -210,12 +228,18 @@ public class RouteProcessor extends BaseProcessor {
                     logger.info(">>> Found service route: " + tm.toString() + " <<<");
                     routeMeta = new RouteMeta(route, element, RouteType.parse(SERVICE), null);
                 } else {
+                    //@Route 标记在不受支持的类上，请查看
                     throw new RuntimeException("The @Route is marked on unsupported class, look at [" + tm.toString() + "].");
                 }
 
+                /** 根据注解 收集所有的 routeMete，存到集合中  */
                 categories(routeMeta);
             }
 
+            /**
+             @Override
+             public void loadInto(Map<String, RouteMeta> providers);
+             */
             MethodSpec.Builder loadIntoMethodOfProviderBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
@@ -223,10 +247,16 @@ public class RouteProcessor extends BaseProcessor {
 
             Map<String, List<RouteDoc>> docSource = new HashMap<>();
 
+            //开始生成java源码，结构分为上下两层，用于需求初始化。
             // Start generate java source, structure is divided into upper and lower levels, used for demand initialization.
             for (Map.Entry<String, Set<RouteMeta>> entry : groupMap.entrySet()) {
                 String groupName = entry.getKey();
 
+                /**
+                 @Override
+                 public void loadInto(Map<String, RouteMeta> atlas);
+
+                 */
                 MethodSpec.Builder loadIntoMethodOfGroupBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
                         .addAnnotation(Override.class)
                         .addModifiers(PUBLIC)
@@ -234,11 +264,12 @@ public class RouteProcessor extends BaseProcessor {
 
                 List<RouteDoc> routeDocList = new ArrayList<>();
 
-                // Build group method body
+                // Build group method body  构建组方法体
                 Set<RouteMeta> groupData = entry.getValue();
                 for (RouteMeta routeMeta : groupData) {
                     RouteDoc routeDoc = extractDocInfo(routeMeta);
 
+                    //构建类
                     ClassName className = ClassName.get((TypeElement) routeMeta.getRawType());
 
                     switch (routeMeta.getType()) {
@@ -371,25 +402,42 @@ public class RouteProcessor extends BaseProcessor {
 
     /**
      * Recursive inject config collector.
-     *
+     *  递归注入配置收集器。
      * @param element current element.
      */
     private void injectParamCollector(Element element, Map<String, Integer> paramsType, Map<String, Autowired> injectConfig) {
+        /** 获取类中 所有的内容  */
         for (Element field : element.getEnclosedElements()) {
+            /** 是 this == FIELD || this == ENUM_CONSTANT  && 有 Autowired 注解   &&  不是  iProvider 的子类
+                它必须是字段，然后它有注释，但它不是提供者。
+             */
             if (field.getKind().isField() && field.getAnnotation(Autowired.class) != null && !types.isSubtype(field.asType(), iProvider)) {
                 // It must be field, then it has annotation, but it not be provider.
                 Autowired paramConfig = field.getAnnotation(Autowired.class);
+                /** 注解name的值为空 取 getSimpleName   */
                 String injectName = StringUtils.isEmpty(paramConfig.name()) ? field.getSimpleName().toString() : paramConfig.name();
+                /** 注解名 ： 真实的类型  */
                 paramsType.put(injectName, typeUtils.typeExchange(field));
+                /** 注解名 ： 真实的注解类型  */
                 injectConfig.put(injectName, paramConfig);
             }
         }
 
         // if has parent?
+        /** TypeElement表示一个class或interface程序元素  */
         TypeMirror parent = ((TypeElement) element).getSuperclass();
+        /**
+         DeclaredType表示声明的类型， class类型或interface类型。 这包括参数化类型，例如java.util.Set<String>以及原始类型。
+         虽然TypeElement表示class或interface元素，但是DeclaredType表示class或interface类型，后者是前者的使用（或调用）。
+         */
         if (parent instanceof DeclaredType) {
             Element parentElement = ((DeclaredType) parent).asElement();
+            /** 全类名 以 android 开头，  */
             if (parentElement instanceof TypeElement && !((TypeElement) parentElement).getQualifiedName().toString().startsWith("android")) {
+                /** 遍历 activity 或 fragment 父类型的字段
+                     android.app.Activity
+                     android.app.Fragment
+                     android.app.Service */
                 injectParamCollector(parentElement, paramsType, injectConfig);
             }
         }
@@ -397,7 +445,7 @@ public class RouteProcessor extends BaseProcessor {
 
     /**
      * Extra doc info from route meta
-     *
+     *  来自路由元的额外文档信息
      * @param routeMeta meta
      * @return doc
      */
@@ -414,7 +462,7 @@ public class RouteProcessor extends BaseProcessor {
 
     /**
      * Sort metas in group.
-     *
+     * 对组中的元进行排序。
      * @param routeMete metas.
      */
     private void categories(RouteMeta routeMete) {
@@ -426,6 +474,7 @@ public class RouteProcessor extends BaseProcessor {
                     @Override
                     public int compare(RouteMeta r1, RouteMeta r2) {
                         try {
+                            /** 根据path 排序  */
                             return r1.getPath().compareTo(r2.getPath());
                         } catch (NullPointerException npe) {
                             logger.error(npe.getMessage());
@@ -439,6 +488,7 @@ public class RouteProcessor extends BaseProcessor {
                 routeMetas.add(routeMete);
             }
         } else {
+            //路由元验证错误，
             logger.warning(">>> Route meta verify error, group is " + routeMete.getGroup() + " <<<");
         }
     }
@@ -451,12 +501,14 @@ public class RouteProcessor extends BaseProcessor {
     private boolean routeVerify(RouteMeta meta) {
         String path = meta.getPath();
 
+        //路径必须以“/”开头，不能为空！
         if (StringUtils.isEmpty(path) || !path.startsWith("/")) {   // The path must be start with '/' and not empty!
             return false;
         }
 
         if (StringUtils.isEmpty(meta.getGroup())) { // Use default group(the first word in path)
             try {
+                //使用默认组（路径中的第一个单词）
                 String defaultGroup = path.substring(1, path.indexOf("/", 1));
                 if (StringUtils.isEmpty(defaultGroup)) {
                     return false;
@@ -465,6 +517,7 @@ public class RouteProcessor extends BaseProcessor {
                 meta.setGroup(defaultGroup);
                 return true;
             } catch (Exception e) {
+                //提取默认组失败！
                 logger.error("Failed to extract default group! " + e.getMessage());
                 return false;
             }

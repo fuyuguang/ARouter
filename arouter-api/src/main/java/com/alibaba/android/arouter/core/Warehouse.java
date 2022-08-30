@@ -31,6 +31,17 @@ class Warehouse {
     static Map<Integer, Class<? extends IInterceptor>> interceptorsIndex = new UniqueKeyTreeMap<>("More than one interceptors use same priority [%s]");
     static List<IInterceptor> interceptors = new ArrayList<>();
 
+
+
+    public static String println(Map<?,?> map) {
+        StringBuffer sb = new StringBuffer();
+        for (Object key : map.keySet()) {
+//            System.out.println("key= "+ key + " and value= " + map.get(key));
+            sb.append(""+ key + "                   " + map.get(key)+"\n");
+        }
+        return sb.append("\n").toString();
+
+    }
     static void clear() {
         routes.clear();
         groupsIndex.clear();

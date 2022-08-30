@@ -53,7 +53,13 @@ public abstract class BaseProcessor extends AbstractProcessor {
             generateDoc = VALUE_ENABLE.equals(options.get(KEY_GENERATE_DOC_NAME));
         }
 
+        logger.info("The user has configuration the module name, it was [" + moduleName + "]  beform");
+
         if (StringUtils.isNotEmpty(moduleName)) {
+            /**
+             [module-java] 变
+             [modulejava]
+             */
             moduleName = moduleName.replaceAll("[^0-9a-zA-Z_]+", "");
 
             logger.info("The user has configuration the module name, it was [" + moduleName + "]");

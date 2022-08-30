@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.alibaba.android.arouter.demo.module1.testactivity.TestDynamicActivity;
+import com.alibaba.android.arouter.demo.service.Entrance;
 import com.alibaba.android.arouter.demo.service.model.TestObj;
 import com.alibaba.android.arouter.demo.service.model.TestParcelable;
 import com.alibaba.android.arouter.demo.service.model.TestSerializable;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // 也可以通过依赖对方提供的二方包来约束入参
                 // 非必须，可以通过这种方式调用
-                // Entrance.redirect2Test1Activity("张飞", 48, this);
+//                 Entrance.redirect2Test1Activity("张飞", 48, this);
                 break;
             case R.id.kotlinNavigation:
                 ARouter.getInstance()

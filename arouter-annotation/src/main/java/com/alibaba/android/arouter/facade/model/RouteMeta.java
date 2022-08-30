@@ -23,9 +23,10 @@ public class RouteMeta {
     private String group;           // Group of route
     private int priority = -1;      // The smaller the number, the higher the priority
     private int extra;              // Extra data
+    /** 注解名 ： 真实的类型  */
     private Map<String, Integer> paramsType;  // Param type
     private String name;
-
+    /** 注解名 ： 真实的注解类型  */
     private Map<String, Autowired> injectConfig;  // Cache inject config.
 
     public RouteMeta() {

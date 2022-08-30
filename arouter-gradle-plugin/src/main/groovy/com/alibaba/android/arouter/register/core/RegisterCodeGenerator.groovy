@@ -49,6 +49,7 @@ class RegisterCodeGenerator {
                 ZipEntry zipEntry = new ZipEntry(entryName)
                 InputStream inputStream = file.getInputStream(jarEntry)
                 jarOutputStream.putNextEntry(zipEntry)
+                //GENERATE_TO_CLASS_NAME = 'com/alibaba/android/arouter/core/LogisticsCenter'
                 if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {
 
                     Logger.i('Insert init code to class >> ' + entryName)
@@ -96,6 +97,7 @@ class RegisterCodeGenerator {
                                   String signature, String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions)
             //generate code into this method
+            /** GENERATE_TO_METHOD_NAME = 'loadRouterMap'  */
             if (name == ScanSetting.GENERATE_TO_METHOD_NAME) {
                 mv = new RouteMethodVisitor(Opcodes.ASM5, mv)
             }
@@ -104,22 +106,40 @@ class RegisterCodeGenerator {
     }
 
     class RouteMethodVisitor extends MethodVisitor {
-
         RouteMethodVisitor(int api, MethodVisitor mv) {
             super(api, mv)
         }
+
 
         @Override
         void visitInsn(int opcode) {
             //generate code before return
             if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)) {
                 extension.classList.each { name ->
+                    /**
+                     name 为如下接口的子类：
+                     IRouteRoot
+                     IInterceptorGroup
+                     IProviderGroup
+
+                     private static void loadRouterMap() {
+                         registerByPlugin = false;
+                         register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulejava");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulekotlin");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Root$$arouterapi");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Interceptors$$modulejava");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulejava");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulekotlin");
+                         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$arouterapi");
+                     }
+
+                        */
                     name = name.replaceAll("/", ".")
                     mv.visitLdcInsn(name)//类名
                     // generate invoke register method into LogisticsCenter.loadRouterMap()
                     mv.visitMethodInsn(Opcodes.INVOKESTATIC
-                            , ScanSetting.GENERATE_TO_CLASS_NAME
-                            , ScanSetting.REGISTER_METHOD_NAME
+                            , ScanSetting.GENERATE_TO_CLASS_NAME //'com/alibaba/android/arouter/core/LogisticsCenter'
+                            , ScanSetting.REGISTER_METHOD_NAME //REGISTER_METHOD_NAME = 'register'
                             , "(Ljava/lang/String;)V"
                             , false)
                 }

@@ -133,7 +133,7 @@ public class InterceptorProcessor extends BaseProcessor {
                     .addAnnotation(Override.class)
                     .addModifiers(PUBLIC)
                     .addParameter(tollgateParamSpec);
-
+            
             // Generate
             if (null != interceptors && interceptors.size() > 0) {
                 // Build method body

@@ -16,9 +16,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Autowired {
 
+    /** 标记参数的名称或服务名称。  */
     // Mark param's name or service name.
     String name() default "";
 
+    /**
+     // 如果需要，当 value 为 null 时应用会崩溃。
+     // 原始类型不会被检查！  */
     // If required, app will be crash when value is null.
     // Primitive type wont be check!
     boolean required() default false;

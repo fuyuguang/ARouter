@@ -24,16 +24,35 @@ class ScanUtil {
      */
     static void scanJar(File jarFile, File destFile) {
         if (jarFile) {
+            //包装成jar 文件类
             def file = new JarFile(jarFile)
+            //得到实体类
             Enumeration enumeration = file.entries()
+            //循环 取出实体类
             while (enumeration.hasMoreElements()) {
+                //取出实体类
                 JarEntry jarEntry = (JarEntry) enumeration.nextElement()
                 String entryName = jarEntry.getName()
+
+                /**
+                 //判断 是否在   com/alibaba/android/arouter/routes/   这个目录包下
+                 这个目录中的内容要 经过 asm 动态生成代码
+
+                 'com/alibaba/android/arouter/routes/'
+                 com.alibaba.android.arouter.routes
+
+                 {@link  com.alibaba.android.arouter.routes.ARouter$$Interceptors$$modulejava}
+                 {@link com.alibaba.android.arouter.routes.ARouter$$Root$$modulejava}
+
+                 */
                 if (entryName.startsWith(ScanSetting.ROUTER_CLASS_PACKAGE_NAME)) {
                     InputStream inputStream = file.getInputStream(jarEntry)
                     scanClass(inputStream)
                     inputStream.close()
                 } else if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {
+                    /**
+                     com/alibaba/android/arouter/core/LogisticsCenter.class
+                     如何是 LogisticsCenter.class   */
                     // mark this jar file contains LogisticsCenter.class
                     // After the scan is complete, we will generate register code into this file
                     RegisterTransform.fileContainsInitClass = destFile
@@ -44,6 +63,7 @@ class ScanUtil {
     }
 
     static boolean shouldProcessPreDexJar(String path) {
+        /** 不包含 support 和 m2repository 包  */
         return !path.contains("com.android.support") && !path.contains("/android/m2repository")
     }
 
@@ -73,15 +93,27 @@ class ScanUtil {
             super(api, cv)
         }
 
+        /** 
+            访问类  */
         void visit(int version, int access, String name, String signature,
                    String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces)
+            /**
+             RegisterTransform.registerList:
+             list.add(new ScanSetting('IRouteRoot'))
+             list.add(new ScanSetting('IInterceptorGroup'))
+             list.add(new ScanSetting('IProviderGroup'))
+                */
             RegisterTransform.registerList.each { ext ->
+                // IRouteRoot != null
                 if (ext.interfaceName && interfaces != null) {
                     interfaces.each { itName ->
+                        /** 遍历该类文件实现的接口 和  registerList中的接口匹配  */
                         if (itName == ext.interfaceName) {
                             //fix repeated inject init code when Multi-channel packaging
+                            //修复多通道打包时重复注入初始化代码
                             if (!ext.classList.contains(name)) {
+                                /** 如果命中，加入到集合中  */
                                 ext.classList.add(name)
                             }
                         }

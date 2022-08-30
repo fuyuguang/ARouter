@@ -79,11 +79,12 @@ class RegisterTransform extends Transform {
                 // rename jar files
                 def hexName = DigestUtils.md5Hex(jarInput.file.absolutePath)
                 if (destName.endsWith(".jar")) {
+                    //获取不包含文件类型后缀的 文件名  fyg.jar  -> fyg
                     destName = destName.substring(0, destName.length() - 4)
                 }
                 // input file
                 File src = jarInput.file
-                // output file
+                // output file                              fyg_aaafb123134    fyg_md5Hex
                 File dest = outputProvider.getContentLocation(destName + "_" + hexName, jarInput.contentTypes, jarInput.scopes, Format.JAR)
 
                 //scan jar file to find classes
@@ -97,13 +98,19 @@ class RegisterTransform extends Transform {
             input.directoryInputs.each { DirectoryInput directoryInput ->
                 File dest = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
                 String root = directoryInput.file.absolutePath
+                /** 目录名后添加 /  */
                 if (!root.endsWith(File.separator))
                     root += File.separator
                 directoryInput.file.eachFileRecurse { File file ->
+
                     def path = file.absolutePath.replace(root, '')
                     if (!leftSlash) {
+                        //转换 window 的换行符
                         path = path.replaceAll("\\\\", "/")
                     }
+                    /**
+                      文件在这个包下  ：
+                     com/alibaba/android/arouter/routes/  */
                     if(file.isFile() && ScanUtil.shouldProcessClass(path)){
                         ScanUtil.scanClass(file)
                     }
@@ -116,7 +123,9 @@ class RegisterTransform extends Transform {
 
         Logger.i('Scan finish, current cost time ' + (System.currentTimeMillis() - startTime) + "ms")
 
+        /** 找到插入代码的入口类  */
         if (fileContainsInitClass) {
+            /** 遍历扫描到的接口类  */
             registerList.each { ext ->
                 Logger.i('Insert register code to file ' + fileContainsInitClass.absolutePath)
 

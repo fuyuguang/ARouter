@@ -41,6 +41,7 @@ public class TypeUtils {
 
     /**
      * Diagnostics out the true java type
+     *  诊断出真正的 java 类型
      *
      * @param element Raw type
      * @return Type class of java
@@ -74,6 +75,7 @@ public class TypeUtils {
                 return TypeKind.STRING.ordinal();
             default:
                 // Other side, maybe the PARCELABLE or SERIALIZABLE or OBJECT.
+                /** 可能是 PARCELABLE 或 SERIALIZABLE 或 OBJECT。  */
                 if (types.isSubtype(typeMirror, parcelableType)) {
                     // PARCELABLE
                     return TypeKind.PARCELABLE.ordinal();

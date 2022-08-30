@@ -65,6 +65,25 @@ public class LogisticsCenter {
         // looks like below:
         // registerRouteRoot(new ARouter..Root..modulejava());
         // registerRouteRoot(new ARouter..Root..modulekotlin());
+
+        /**
+         name 为如下接口的子类：
+         IRouteRoot
+         IInterceptorGroup
+         IProviderGroup
+
+         private static void loadRouterMap() {
+         registerByPlugin = false;
+         register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulejava");
+         register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulekotlin");
+         register("com.alibaba.android.arouter.routes.ARouter$$Root$$arouterapi");
+         register("com.alibaba.android.arouter.routes.ARouter$$Interceptors$$modulejava");
+         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulejava");
+         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulekotlin");
+         register("com.alibaba.android.arouter.routes.ARouter$$Providers$$arouterapi");
+         }
+
+         */
     }
 
     /**
@@ -191,6 +210,7 @@ public class LogisticsCenter {
 
             if (ARouter.debuggable()) {
                 logger.debug(TAG, String.format(Locale.getDefault(), "LogisticsCenter has already been loaded, GroupIndex[%d], InterceptorIndex[%d], ProviderIndex[%d]", Warehouse.groupsIndex.size(), Warehouse.interceptorsIndex.size(), Warehouse.providersIndex.size()));
+                logger.debug(TAG, String.format(Locale.getDefault(), "GroupIndex  \n [%s], \n\n InterceptorIndex  \n [%s], \n\n ProviderIndex \n [%s] \n\n", Warehouse.println(Warehouse.groupsIndex), Warehouse.println(Warehouse.interceptorsIndex), Warehouse.println(Warehouse.providersIndex)));
             }
         } catch (Exception e) {
             throw new HandlerException(TAG + "ARouter init logistics center exception! [" + e.getMessage() + "]");
@@ -233,8 +253,11 @@ public class LogisticsCenter {
                 try {
                     if (ARouter.debuggable()) {
                         logger.debug(TAG, String.format(Locale.getDefault(), "The group [%s] starts loading, trigger by [%s]", postcard.getGroup(), postcard.getPath()));
+                        logger.debug(TAG, String.format(Locale.getDefault(), "The postcard [%s] : ",  postcard));
+                        logger.debug(TAG, String.format(Locale.getDefault(), ""));
                     }
 
+                    /** Warehouse.routes 中添加数据  */
                     addRouteGroupDynamic(postcard.getGroup(), null);
 
                     if (ARouter.debuggable()) {
@@ -359,10 +382,12 @@ public class LogisticsCenter {
         if (Warehouse.groupsIndex.containsKey(groupName)){
             // If this group is included, but it has not been loaded
             // load this group first, because dynamic route has high priority.
+            /** 往 Warehouse.routes中添加 数据   */
             Warehouse.groupsIndex.get(groupName).getConstructor().newInstance().loadInto(Warehouse.routes);
+            /** 删除该 groupName 对应的 IRouteGroup  */
             Warehouse.groupsIndex.remove(groupName);
         }
-
+        
         // cover old group.
         if (null != group) {
             group.loadInto(Warehouse.routes);
