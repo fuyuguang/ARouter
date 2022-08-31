@@ -43,6 +43,7 @@ public final class ARouter {
             hasInit = _ARouter.init(application);
 
             if (hasInit) {
+                /** 初始化拦截器  */
                 _ARouter.afterInit();
             }
 

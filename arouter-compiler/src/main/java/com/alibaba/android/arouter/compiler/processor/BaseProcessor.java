@@ -12,6 +12,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,6 +70,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
         }
     }
 
+    /** 配置注解处理器支持的Java版本  */
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
@@ -81,4 +83,30 @@ public abstract class BaseProcessor extends AbstractProcessor {
             this.add(KEY_GENERATE_DOC_NAME);
         }};
     }
+
+
+    public static String println(Map<?,?> map) {
+        StringBuffer sb = new StringBuffer("\n");
+        for (Object key : map.keySet()) {
+            sb.append(""+ key + "                   " + map.get(key)+"\n");
+        }
+        return sb.append("\n").toString();
+    }
+
+    public static String println(Set<?> set) {
+        StringBuffer sb = new StringBuffer("\n");
+        for (Object obj : set) {
+            sb.append(obj+"\n");
+        }
+        return sb.append("\n").toString();
+    }
+
+    public static String println(List<?> set) {
+        StringBuffer sb = new StringBuffer("\n");
+        for (Object obj : set) {
+            sb.append(obj+"\n");
+        }
+        return sb.append("\n").toString();
+    }
+
 }

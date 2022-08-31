@@ -206,6 +206,7 @@ final class _ARouter {
 
     /**
      * Build postcard by path and group
+     * 按路径和组 构建明信片
      */
     protected Postcard build(String path, String group, Boolean afterReplace) {
         if (TextUtils.isEmpty(path) || TextUtils.isEmpty(group)) {
@@ -223,6 +224,7 @@ final class _ARouter {
 
     /**
      * Extract the default group from path.
+     * 从路径中提取默认组。
      */
     private String extractGroup(String path) {
         if (TextUtils.isEmpty(path) || !path.startsWith("/")) {
