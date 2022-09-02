@@ -365,7 +365,7 @@ public class RouteProcessor extends BaseProcessor {
                                              ));
                                               */
                                             "providers.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, null, " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
-                                            (routeMeta.getRawType()).toString(), //父接口 是  iProvider 类型,那么 就存 真实的类型   SingleService
+                                            (routeMeta.getRawType()).toString(), //父接口 是  iProvider 类型,那么 就存 element 自己，真实的类型   SingleService
                                             routeMetaCn,    // RouteMeta
                                             routeTypeCn,    // RouteType
                                             className,      // HelloServiceImpl.class
