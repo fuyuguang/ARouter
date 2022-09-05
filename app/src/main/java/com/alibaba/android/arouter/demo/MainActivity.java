@@ -198,7 +198,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ARouter.getInstance().build("/xxx/xxx").navigation();
                 break;
             case R.id.failNav3:
+                //aroute 中的写法，
                 ARouter.getInstance().navigation(MainActivity.class);
+//                ARouter.getInstance().navigationCustomService(MainActivity.class);
+
+                HelloService helloService = ARouter.getInstance().navigationCustomService(HelloService.class);
+
                 break;
             case R.id.normalNavigation2:
                 ARouter.getInstance()

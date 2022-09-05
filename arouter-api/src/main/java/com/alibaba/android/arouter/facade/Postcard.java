@@ -142,6 +142,8 @@ public final class Postcard extends RouteMeta {
     /**
      * Navigation to the route with path in postcard.
      *
+     * 使用明信片中的路径导航到路线。
+     *
      * @param context Activity and so on.
      */
     public Object navigation(Context context, NavigationCallback callback) {

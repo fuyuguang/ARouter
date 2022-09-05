@@ -43,6 +43,10 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes(ANNOTATION_TYPE_INTECEPTOR)
 public class InterceptorProcessor extends BaseProcessor {
+    /**
+     * key = 优先级
+     * value = 标注了拦截器的元素
+     */
     private Map<Integer, Element> interceptors = new TreeMap<>();
     private TypeMirror iInterceptor = null;
 
@@ -94,6 +98,7 @@ public class InterceptorProcessor extends BaseProcessor {
                     Element lastInterceptor = interceptors.get(interceptor.priority());
                     if (null != lastInterceptor) { // Added, throw exceptions
                         throw new IllegalArgumentException(
+                                /** 拦截器的优先级，不能相同，通过map实现key 相同，取出value 不为空，报错  */
                                 String.format(Locale.getDefault(), "More than one interceptors use same priority [%d], They are [%s] and [%s].",
                                         interceptor.priority(),
                                         lastInterceptor.getSimpleName(),
@@ -138,12 +143,14 @@ public class InterceptorProcessor extends BaseProcessor {
             if (null != interceptors && interceptors.size() > 0) {
                 // Build method body
                 for (Map.Entry<Integer, Element> entry : interceptors.entrySet()) {
+                    /** 根据 values  element 生成 类名，通过ClassName.get的方式会自动 到包！！！  */
                     loadIntoMethodOfTollgateBuilder.addStatement("interceptors.put(" + entry.getKey() + ", $T.class)", ClassName.get((TypeElement) entry.getValue()));
                 }
             }
 
             // Write to disk(Write file even interceptors is empty.)
             JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
+                    //ARouter$$Interceptors$$moduleName
                     TypeSpec.classBuilder(NAME_OF_INTERCEPTOR + SEPARATOR + moduleName)
                             .addModifiers(PUBLIC)
                             .addJavadoc(WARNING_TIPS)

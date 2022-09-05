@@ -90,6 +90,11 @@ public class LogisticsCenter {
      * register by class name
      * Sacrificing a bit of efficiency to solve
      * the problem that the main dex file size is too large
+     * 按班级名称注册
+     * 牺牲一点效率来解决
+     * 主dex文件过大的问题
+     *
+     * 物流中心 ，往总厂库中注册 各module 产生的 【路由分组后的 路由组厂库class】【provider】【拦截器】
      */
     private static void register(String className) {
         if (!TextUtils.isEmpty(className)) {

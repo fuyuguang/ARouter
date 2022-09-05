@@ -9,6 +9,7 @@ import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.callback.NavigationCallback;
 import com.alibaba.android.arouter.facade.model.RouteMeta;
 import com.alibaba.android.arouter.facade.template.ILogger;
+import com.alibaba.android.arouter.facade.template.IProvider;
 import com.alibaba.android.arouter.facade.template.IRouteGroup;
 import com.alibaba.android.arouter.utils.Consts;
 
@@ -166,13 +167,27 @@ public final class ARouter {
 
     /**
      * Launch the navigation by type
-     *
+     *  按类型启动导航，
+     *  从 Warehouse.providersIndex 中查找 provider， 初始化时加载所有的provider
+     *  该方式只能查找 provider ，不能查找 Activity
      * @param service interface of service
      * @param <T>     return type
      * @return instance of service
      */
     public <T> T navigation(Class<? extends T> service) {
         return _ARouter.getInstance().navigation(service);
+    }
+
+
+    /**
+     * 该方法是自己添加的方法，不是 aroute框架中的方法，该方法是一个 泛型方法，指定T的类型为 IProvider的子类，
+     * 此处限定 T 的类型 只能是 IProvider的子类
+     * @param service
+     * @param <T>
+     * @return
+     */
+    public <T extends IProvider> T navigationCustomService(Class<T> service) {
+        return _ARouter.getInstance().navigationCustomService(service);
     }
 
     /**

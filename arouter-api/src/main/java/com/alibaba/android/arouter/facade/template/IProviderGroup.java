@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * Template of provider group.
+ * 提供者组的模板。
  *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.0

@@ -23,6 +23,7 @@ import com.alibaba.android.arouter.facade.callback.NavigationCallback;
 import com.alibaba.android.arouter.facade.model.RouteMeta;
 import com.alibaba.android.arouter.facade.service.*;
 import com.alibaba.android.arouter.facade.template.ILogger;
+import com.alibaba.android.arouter.facade.template.IProvider;
 import com.alibaba.android.arouter.facade.template.IRouteGroup;
 import com.alibaba.android.arouter.thread.DefaultPoolExecutor;
 import com.alibaba.android.arouter.utils.Consts;
@@ -176,6 +177,7 @@ final class _ARouter {
 
     /**
      * Build postcard by path and default group
+     * 按路径和默认组构建明信片
      */
     protected Postcard build(String path) {
         if (TextUtils.isEmpty(path)) {
@@ -191,6 +193,7 @@ final class _ARouter {
 
     /**
      * Build postcard by uri
+     * 通过 uri 制作明信片
      */
     protected Postcard build(Uri uri) {
         if (null == uri || TextUtils.isEmpty(uri.toString())) {
@@ -249,7 +252,39 @@ final class _ARouter {
         interceptorService = (InterceptorService) ARouter.getInstance().build("/arouter/service/interceptor").navigation();
     }
 
+    /**
+     * 该方式只能查找 provider ，不能查找 Activity
+     * @param service
+     * @param <T>
+     * @return
+     */
     protected <T> T navigation(Class<? extends T> service) {
+        try {
+            Postcard postcard = LogisticsCenter.buildProvider(service.getName());
+
+            // Compatible 1.0.5 compiler sdk.
+            // Earlier versions did not use the fully qualified name to get the service
+            if (null == postcard) {
+                // No service, or this service in old version.
+                postcard = LogisticsCenter.buildProvider(service.getSimpleName());
+            }
+
+            if (null == postcard) {
+                return null;
+            }
+
+            // Set application to postcard.
+            postcard.setContext(mContext);
+
+            LogisticsCenter.completion(postcard);
+            return (T) postcard.getProvider();
+        } catch (NoRouteFoundException ex) {
+            logger.warning(Consts.TAG, ex.getMessage());
+            return null;
+        }
+    }
+
+    protected <T> T navigationCustomService(Class<? extends IProvider> service) {
         try {
             Postcard postcard = LogisticsCenter.buildProvider(service.getName());
 

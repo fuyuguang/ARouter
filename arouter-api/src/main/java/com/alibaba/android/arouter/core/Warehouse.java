@@ -35,9 +35,23 @@ class Warehouse {
     // Cache provider
     /** key = route标注的类所对应的class , IProvider 接口的实现类 */
     static Map<Class, IProvider> providers = new HashMap<>();
+
+    /**
+     *
+     *key :
+     *实现IProvider 接口的 子类全类名
+     *如果用@Route 标注的element的父类是IProvider接口，那个key为 element全限定名  例：SingleService
+     *如果用@Route 标注的element的父类是IProvider接口的子类，那个key为 element 父类的 全限定名  HelloServiceImpl
+     *
+     *RouteMeta 对象
+     */
     static Map<String, RouteMeta> providersIndex = new HashMap<>();
 
     // Cache interceptor
+    /**
+     * key=优先级
+     * values= 标注了IIntercepter的 拦截器的class
+     */
     static Map<Integer, Class<? extends IInterceptor>> interceptorsIndex = new UniqueKeyTreeMap<>("More than one interceptors use same priority [%s]");
     static List<IInterceptor> interceptors = new ArrayList<>();
 

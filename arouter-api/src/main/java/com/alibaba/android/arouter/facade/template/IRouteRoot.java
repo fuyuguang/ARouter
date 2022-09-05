@@ -10,7 +10,8 @@ import java.util.Map;
  * @since 16/8/23 16:36
  * 每个 模块 都 有一个  IRouteRoot 接口的实现类
  * 路由根 接口 的作用：
- *  按组存放，该组下所有的路由表
+ *  按组存放，【路由组】
+ *  【路由组】中存放 该组下，所有的路由元
  */
 public interface IRouteRoot {
 

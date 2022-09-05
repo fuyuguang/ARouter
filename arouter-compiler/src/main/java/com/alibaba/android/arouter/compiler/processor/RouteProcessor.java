@@ -92,6 +92,7 @@ public class RouteProcessor extends BaseProcessor {
             try {
                 docWriter = mFiler.createResource(
                         StandardLocation.SOURCE_OUTPUT,
+                        //com.alibaba.android.arouter.docs
                         PACKAGE_OF_GENERATE_DOCS,
                         "arouter-map-of-" + moduleName + ".json"
                 ).openWriter();
