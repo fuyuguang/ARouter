@@ -1,5 +1,7 @@
 package com.alibaba.android.arouter.compiler.utils;
 
+import com.alibaba.android.arouter.facade.model.TypeWrapper;
+
 /**
  * Some consts used in processors
  *
@@ -48,14 +50,25 @@ public class Consts {
     private static final String TEMPLATE_PACKAGE = ".template";
     private static final String SERVICE_PACKAGE = ".service";
     private static final String MODEL_PACKAGE = ".model";
+    /**
+     {@link com.alibaba.android.arouter.facade.template.IProvider  */
     public static final String IPROVIDER = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IProvider";
+    /**
+     {@link com.alibaba.android.arouter.facade.template.IProviderGroup}  */
     public static final String IPROVIDER_GROUP = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IProviderGroup";
+    /** {@link com.alibaba.android.arouter.facade.template.IInterceptor}  */
     public static final String IINTERCEPTOR = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IInterceptor";
+    /** {@link com.alibaba.android.arouter.facade.template.IInterceptorGroup}  */
     public static final String IINTERCEPTOR_GROUP = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IInterceptorGroup";
+    /** {@link com.alibaba.android.arouter.facade.template.IRouteRoot}  */
     public static final String ITROUTE_ROOT = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IRouteRoot";
+    /** {@link com.alibaba.android.arouter.facade.template.IRouteGroup}  */
     public static final String IROUTE_GROUP = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".IRouteGroup";
+    /** {@link com.alibaba.android.arouter.facade.template.ISyringe}  */
     public static final String ISYRINGE = FACADE_PACKAGE + TEMPLATE_PACKAGE + ".ISyringe";
+    /** {@link com.alibaba.android.arouter.facade.service.SerializationService }  */
     public static final String JSON_SERVICE = FACADE_PACKAGE + SERVICE_PACKAGE + ".SerializationService";
+    /** {@link TypeWrapper }  */
     public static final String TYPE_WRAPPER = FACADE_PACKAGE + MODEL_PACKAGE + ".TypeWrapper";
 
     // Log

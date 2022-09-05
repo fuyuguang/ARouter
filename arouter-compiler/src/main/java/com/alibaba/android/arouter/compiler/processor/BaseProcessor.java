@@ -25,11 +25,13 @@ import static com.alibaba.android.arouter.compiler.utils.Consts.NO_MODULE_NAME_T
  * @author zhilong [Contact me.](mailto:zhilong.lzl@alibaba-inc.com)
  * @version 1.0
  * @since 2019-03-01 12:31
+ * [接口 Elements](https://download.oracle.com/technetwork/java/javase/6/docs/zh/api/javax/lang/model/util/Elements.html)
  */
 public abstract class BaseProcessor extends AbstractProcessor {
     Filer mFiler;
     Logger logger;
     Types types;
+    /** 用来对程序元素进行操作的实用工具方法。  */
     Elements elementUtils;
     TypeUtils typeUtils;
     // Module name, maybe its 'app' or others

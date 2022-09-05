@@ -79,7 +79,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 /** 定义注解处理器继承自AbstractProcessor  */
 public class RouteProcessor extends BaseProcessor {
     private Map<String, Set<RouteMeta>> groupMap = new HashMap<>(); // ModuleName and routeMeta.
-    private Map<String, String> rootMap = new TreeMap<>();  // Map of root metas, used for generate class file in order.
+    private Map<String, String> rootMap = new TreeMap<>();  // Map of root metas, used for generate class file in order.  根元映射，用于按顺序生成类文件。
 
     private TypeMirror iProvider = null;
     private Writer docWriter;       // Writer used for write doc
@@ -171,7 +171,7 @@ public class RouteProcessor extends BaseProcessor {
              * {@link com.alibaba.android.arouter.facade.template.IRouteGroup}
              *  void loadInto(Map<String, RouteMeta> atlas);
              * */
-            // Interface of ARouter
+            // Interface of ARouter         返回已给出其规范名称的类型元素。
             TypeElement type_IRouteGroup = elementUtils.getTypeElement(IROUTE_GROUP);
 
             /** 
@@ -229,6 +229,7 @@ public class RouteProcessor extends BaseProcessor {
             /*
               Build method : 'loadInto'
               public void loadInto()
+              void loadInto(Map<String, Class<? extends IRouteGroup>> routes);
              */
             MethodSpec.Builder loadIntoMethodOfRootBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
                     .addAnnotation(Override.class)
@@ -239,8 +240,8 @@ public class RouteProcessor extends BaseProcessor {
             logger.info(">>> routeElements  is : " + println(routeElements) + " <<<");
             for (Element element : routeElements) {
 
-                TypeMirror tm = element.asType();
-                Route route = element.getAnnotation(Route.class);
+                TypeMirror tm = element.asType();   // 返回此元素定义的类型。
+                Route route = element.getAnnotation(Route.class); //返回此元素针对指定类型的注释（如果存在这样的注释），否则返回 null。
                 RouteMeta routeMeta;
 
                 // Activity or Fragment
@@ -265,7 +266,7 @@ public class RouteProcessor extends BaseProcessor {
                     }
                     /** 该元素上所有的注解，存到routeMeta 中   */
                     routeMeta.setInjectConfig(injectConfig);
-                } else if (types.isSubtype(tm, iProvider)) {         // IProvider
+                } else if (types.isSubtype(tm, iProvider)) {         // 是 IProvider 子类型
                     logger.info(">>> Found provider route: " + tm.toString() + " <<<");
                     routeMeta = new RouteMeta(route, element, RouteType.PROVIDER, null);
                 } else if (types.isSubtype(tm, type_Service)) {           // Service
@@ -293,6 +294,9 @@ public class RouteProcessor extends BaseProcessor {
 
             //开始生成java源码，结构分为上下两层，用于需求初始化。
             // Start generate java source, structure is divided into upper and lower levels, used for demand initialization.
+            /**
+             遍历路由组
+              */
             for (Map.Entry<String, Set<RouteMeta>> entry : groupMap.entrySet()) {
                 String groupName = entry.getKey();
 
@@ -311,28 +315,52 @@ public class RouteProcessor extends BaseProcessor {
                 // Build group method body  构建组方法体
                 Set<RouteMeta> groupData = entry.getValue();
                 /**
-                    遍历 groupData，如何 element的父类是 iProvider 类型，
+
+                 遍历 某组下的所有路由元，根据路由元中的信息，拼接方法体，  一个for中拼接了两个方法体，
+
+                 拼接方法体 Group:  loadIntoMethodOfGroupBuilder 中的语句   和
+
+                 拼接方法体Provider :  loadIntoMethodOfProviderBuilder
                   */
-                for (RouteMeta routeMeta : groupData) {
+                for (RouteMeta routeMeta : groupData) { //遍历 groupData，
                     RouteDoc routeDoc = extractDocInfo(routeMeta);
 
                     //构建类
+                    /**
+                     RouteMeta的类型：
+                     ACTIVITY(0, "android.app.Activity"),
+                     SERVICE(1, "android.app.Service"),
+                     PROVIDER(2, "com.alibaba.android.arouter.facade.template.IProvider"),
+                     CONTENT_PROVIDER(-1, "android.app.ContentProvider"),
+                     BOARDCAST(-1, ""),
+                     METHOD(-1, ""),
+                     FRAGMENT(-1, "android.app.Fragment"),
+                     UNKNOWN(-1, "Unknown route type");
+                     */
                     ClassName className = ClassName.get((TypeElement) routeMeta.getRawType());
 
-                    switch (routeMeta.getType()) {
-                        /**
-                         遍历 groupData，
-                         如果 element的父类是 iProvider 类型，Map 的key  存 routeMeta.getRawType()
-                         否则，element的父类是 iProvider 子类型 ，Map 的key  存 routeMeta.getRawType()).getInterfaces()
 
-                         */
+
+                    /**
+
+                     拼接方法体Provider :  loadIntoMethodOfProviderBuilder
+
+                     public void loadInto(Map<String, RouteMeta> providers);
+
+                     针对路由元是provider的类型，需要如下特殊处理一下，
+                     获取路由元中的element的父接口 parentInterfaces
+                     如果 parentInterfaces 是 iProvider 类型，providers 的key  存 routeMeta.getRawType().toString()
+                     如果parentInterfaces  是 iProvider 子类型 ，providers 的key  存 routeMeta.getRawType()).getInterfaces().toString()
+                     * */
+                    switch (routeMeta.getType()) {
+
                         case PROVIDER:  // Need cache provider's super class    需要缓存提供者的超类
                             /** 获取 父 接口   遍历父接口 */
                             List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
 
                             logger.info(">>> print  interfaces :    " + println(interfaces));
 
-                            for (TypeMirror tm : interfaces) {
+                            for (TypeMirror tm : interfaces) { //遍历父接口列表，查找符合条件的 父接口
                                 routeDoc.addPrototype(tm.toString());
 
                                  /**
@@ -365,6 +393,7 @@ public class RouteProcessor extends BaseProcessor {
                                              -2147483648
                                              ));
                                               */
+                                            //"providers.put(routeMeta.getRawType(), RouteMeta.build(RouteType." + routeMeta.getType() + ", className.class, $S, $S, null, " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
                                             "providers.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, null, " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
                                             (routeMeta.getRawType()).toString(), //父接口 是  iProvider 类型,那么 就存 element 自己，真实的类型   SingleService
                                             routeMetaCn,    // RouteMeta
@@ -396,12 +425,20 @@ public class RouteProcessor extends BaseProcessor {
                             break;
                     }
 
+
+
+
+
+
+
+                    /** 类中如果有 要注入的字段， 通过 mapBodyBuilder 完成    */
                     // Make map body for paramsType
                     StringBuilder mapBodyBuilder = new StringBuilder();
                     /** 注解名 ： 真实的类型  */
                     Map<String, Integer> paramsType = routeMeta.getParamsType();
                     /** 注解名 ： 真实的注解类型  */
                     Map<String, Autowired> injectConfigs = routeMeta.getInjectConfig();
+                    /** 构建 routeDoc  */
                     if (MapUtils.isNotEmpty(paramsType)) {
                         List<RouteDoc.Param> paramList = new ArrayList<>();
 
@@ -421,8 +458,13 @@ public class RouteProcessor extends BaseProcessor {
                         routeDoc.setParams(paramList);
                     }
                     String mapBody = mapBodyBuilder.toString();
+                    /** 遍历 某组下的所有路由元，根据路由元中的信息，拼接方法体   loadIntoMethodOfGroupBuilder 中的语句，
+                        public void loadInto(Map<String, RouteMeta> atlas);
+                      */
 
                     loadIntoMethodOfGroupBuilder.addStatement(
+                            //"atlas.put($routeMeta.getPath(), $routeMetaCn.build($routeTypeCn." + routeMeta.getType() + ", $className.class, $S, $S, " + (StringUtils.isEmpty(mapBody) ? null : ("new java.util.HashMap<String, Integer>(){{" + mapBodyBuilder.toString() + "}}")) + ", " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
+                            //"atlas.put($routeMeta.getPath(), $routeMeta.build($routeType." + routeMeta.getType() + ", $className.class, $S, $S, " + (StringUtils.isEmpty(mapBody) ? null : ("new java.util.HashMap<String, Integer>(){{" + mapBodyBuilder.toString() + "}}")) + ", " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
                             "atlas.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, " + (StringUtils.isEmpty(mapBody) ? null : ("new java.util.HashMap<String, Integer>(){{" + mapBodyBuilder.toString() + "}}")) + ", " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
                             routeMeta.getPath(),
                             routeMetaCn,
@@ -435,9 +477,38 @@ public class RouteProcessor extends BaseProcessor {
                     routeDocList.add(routeDoc);
                 }
 
-                // Generate groups
-                //ARouter + $$ + "Group" + $$ + groupName;
-                //ARouter$$Group$$groupName;
+
+                /**
+
+                 Generate groups
+                 ARouter + $$ + "Group" + $$ + groupName;
+                 ARouter$$Group$$groupName;
+
+                 生成 ARouter$$Group$$groupName 文件
+                 类格式 ARouter$$Group$$组名称
+
+                 该代码在
+                 for (Map.Entry<String, Set<RouteMeta>> entry : groupMap.entrySet())  循环体内，
+                 所以 module 中有不同的分组时 (groupMap.entrySet() > 1) 会 生成多个 组映射表类
+                 【 ARouter$$Group$$m2  ，ARouter$$Group$$module ，ARouter$$Group$$test，ARouter$$Group$$yourservicegroupname】
+
+                 */
+                /*
+                按组名生成   文件 ：
+                ARouter$$Root$$arouterapi ：
+                    ARouter$$Group$$arouter（组名）
+
+                ARouter$$Root$$modulejava  ：
+                    ARouter$$Group$$m2（组名）
+                    ARouter$$Group$$module（组名）
+                    ARouter$$Group$$test（组名）
+                    ARouter$$Group$$yourservicegroupname（组名）
+
+
+                ARouter$$Root$$modulekotlin
+                    ARouter$$Group$$kotlin（组名）
+
+                 */
                 String groupFileName = NAME_OF_GROUP + groupName;
                 JavaFile.builder(PACKAGE_OF_GENERATE_FILE, //com.alibaba.android.arouter.routes
                         TypeSpec.classBuilder(groupFileName) //构建类文件
@@ -452,13 +523,19 @@ public class RouteProcessor extends BaseProcessor {
                 /** 组名，文件名  */
                 rootMap.put(groupName, groupFileName);
                 docSource.put(groupName, routeDocList);
-            }
+            } // for (Map.Entry<String, Set<RouteMeta>> entry : groupMap.entrySet())  循环体  结束
+
+
+
 
             if (MapUtils.isNotEmpty(rootMap)) {
                 // Generate root meta by group name, it must be generated before root, then I can find out the class of group.
                 //通过组名生成root meta，必须在root之前生成，然后我可以找出组的类。
+                /** 根据 组名，和类名，填充  */
                 for (Map.Entry<String, String> entry : rootMap.entrySet()) {
-                    //void loadInto(Map<String, Class<? extends IRouteGroup>> routes);
+                    /** void loadInto(Map<String, Class<? extends IRouteGroup>> routes);  */
+                    //routes.put(组名, 类名.class)   //上一步刚生成 ARouter$$Group$$test ，紧接着就 生成
+                    //routes.put($S, $T.class)
                     loadIntoMethodOfRootBuilder.addStatement("routes.put($S, $T.class)", entry.getKey(), ClassName.get(PACKAGE_OF_GENERATE_FILE, entry.getValue()));
                 }
             }
@@ -470,6 +547,15 @@ public class RouteProcessor extends BaseProcessor {
                 docWriter.close();
             }
 
+
+            /**
+             生成 ARouter$$Providers$$moduleName 文件
+             类格式 ARouter$$Providers$$模块名称
+             注解处理器会处理每个 module，所以此处不需要遍历，
+             每个 module 都会生成  一个  ARouter$$Providers$$moduleName 文件
+
+             代码中通过这个查找服务，不需要在groupIndex中查找，可能是为了提高查找服务的效率，以空间换时间
+             */
             // Write provider into disk
             //ARouter$$Providers$$moduleName
             String providerMapFileName = NAME_OF_PROVIDER + SEPARATOR + moduleName;
@@ -484,11 +570,17 @@ public class RouteProcessor extends BaseProcessor {
 
             logger.info(">>> Generated provider map, name is " + providerMapFileName + " <<<");
 
+            /**
+             生成 ARouter$$Root$$moduleName 文件
+             格式 ARouter$$Root$$模块名称
+             注解处理器会处理每个 module，所以此处不需要遍历，
+             每个 module 都会生成  一个  ARouter$$Root$$moduleName 类
+              */
             // Write root meta into disk.
             //ARouter$$Root$$moduleName
             String rootFileName = NAME_OF_ROOT + SEPARATOR + moduleName;
             JavaFile.builder(PACKAGE_OF_GENERATE_FILE,
-                    TypeSpec.classBuilder(rootFileName)
+                    TypeSpec.classBuilder(rootFileName) //类名
                             .addJavadoc(WARNING_TIPS)
                             /**  {@link com.alibaba.android.arouter.facade.template.IRouteRoot}  */
                             .addSuperinterface(ClassName.get(elementUtils.getTypeElement(ITROUTE_ROOT)))
@@ -511,7 +603,7 @@ public class RouteProcessor extends BaseProcessor {
          getEnclosingElement 获取一个元素的外部元素，比如上述例子中的value和add方法分别对应VariableElement和ExecutableElement，如果调用他们的getEnclosingElement方法，得到的是Test的元素
           */
         for (Element field : element.getEnclosedElements()) {
-            /** 是 this == FIELD || this == ENUM_CONSTANT  && 有 Autowired 注解   &&  不是  iProvider 的子类
+            /** 是 this == FIELD || this == ENUM_CONSTANT  && 有 Autowired 注解   &&   元素field 不是  iProvider 的子类
                 它必须是字段，然后它有注释，但它不是提供者。
              */
             if (field.getKind().isField() && field.getAnnotation(Autowired.class) != null && !types.isSubtype(field.asType(), iProvider)) {
@@ -536,8 +628,10 @@ public class RouteProcessor extends BaseProcessor {
         if (parent instanceof DeclaredType) {
             Element parentElement = ((DeclaredType) parent).asElement();
             /** 全类名 不是 以 android 开头，  */
+            // parentElement 是 类或接口程序元素
+            //不是以android 开头
             if (parentElement instanceof TypeElement && !((TypeElement) parentElement).getQualifiedName().toString().startsWith("android")) {
-                /** 遍历 自定义的 BaseActivity 或 BaseFragment 父类型的字段
+                /** 遍历 自定义的 BaseActivity 或 BaseFragment 父类型的字段，自定义的父类不是以android 开头
                      android.app.Activity
                      android.app.Fragment
                      android.app.Service */
