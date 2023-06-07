@@ -5,6 +5,9 @@ buildscript {
     repositories {
         mavenCentral()
         google()
+        maven {
+            url uri('./repo')
+        }
     }
 
     dependencies {
@@ -12,7 +15,9 @@ buildscript {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.alibaba:arouter-register:$arouter_register_version"
+//        classpath "com.alibaba:arouter-register:$arouter_register_version"
+        classpath 'com.alibaba:arouter:1.0.0'
+
     }
 }
 
