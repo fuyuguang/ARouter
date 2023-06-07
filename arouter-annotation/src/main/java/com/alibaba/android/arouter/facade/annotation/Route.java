@@ -34,6 +34,9 @@ public @interface Route {
     /**
      * Extra data, can be set by user.
      * Ps. U should use the integer num sign the switch, by bits. 10001010101010
+     *
+     * 额外数据，可由用户设置。
+     * 附言。 U 应该使用整数 num 符号开关，按位。 10001010101010
      */
     int extras() default Integer.MIN_VALUE;
 

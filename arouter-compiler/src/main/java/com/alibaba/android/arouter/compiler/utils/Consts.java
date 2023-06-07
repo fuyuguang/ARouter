@@ -73,7 +73,7 @@ public class Consts {
 
     // Log
     static final String PREFIX_OF_LOGGER = PROJECT + "::Compiler ";
-    public static final String NO_MODULE_NAME_TIPS = "These no module name, at 'build.gradle', like :\n" +
+    public static final String NO_MODULE_NAME_TIPS = "\nThese no module name, at 'build.gradle', like :\n" +
             "android {\n" +
             "    defaultConfig {\n" +
             "        ...\n" +

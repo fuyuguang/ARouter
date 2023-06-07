@@ -50,7 +50,12 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({ANNOTATION_TYPE_AUTOWIRED})
 public class AutowiredProcessor extends BaseProcessor {
+    /** 包含字段需要自动装配和他的超类。
+        key ： 类元素
+        values: 类中的字段 元素
+      */
     private Map<TypeElement, List<Element>> parentAndChild = new HashMap<>();   // Contain field need autowired and his super class.
+    /** com.alibaba.android.arouter.launcher.ARouter  */
     private static final ClassName ARouterClass = ClassName.get("com.alibaba.android.arouter.launcher", "ARouter");
     private static final ClassName AndroidLog = ClassName.get("android.util", "Log");
 
@@ -269,8 +274,9 @@ public class AutowiredProcessor extends BaseProcessor {
     private void categories(Set<? extends Element> elements) throws IllegalAccessException {
         if (CollectionUtils.isNotEmpty(elements)) {
             for (Element element : elements) {
+                /** 它被那个元素 包裹 ：获取外层 的类  */
                 TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-
+                /** 修饰的 字段 访问修饰符 不能是private的   */
                 if (element.getModifiers().contains(Modifier.PRIVATE)) {
                     throw new IllegalAccessException("The inject fields CAN NOT BE 'private'!!! please check field ["
                             + element.getSimpleName() + "] in class [" + enclosingElement.getQualifiedName() + "]");

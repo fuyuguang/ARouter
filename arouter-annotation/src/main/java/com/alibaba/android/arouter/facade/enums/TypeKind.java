@@ -1,5 +1,8 @@
 package com.alibaba.android.arouter.facade.enums;
 
+import javax.print.DocFlavor;
+import javax.print.DocFlavor.STRING;
+
 /**
  * Kind of field type.
  *
@@ -23,4 +26,8 @@ public enum TypeKind {
     SERIALIZABLE,
     PARCELABLE,
     OBJECT;
+//    string,
+//    serializable,
+//    parcelable,
+//    object;
 }

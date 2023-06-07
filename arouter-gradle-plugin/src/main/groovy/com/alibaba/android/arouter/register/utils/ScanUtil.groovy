@@ -10,7 +10,11 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 /**
- * Scan all class in the package: com/alibaba/android/arouter/
+ *
+ * 扫描包中的所有类：com/alibaba/android/arouter/
+    找出所有路由器、拦截器和提供者
+
+ Scan all class in the package: com/alibaba/android/arouter/
  * find out all routers,interceptors and providers
  * @author billy.qi email: qiyilike@163.com
  * @since 17/3/20 11:48
@@ -21,6 +25,10 @@ class ScanUtil {
      * scan jar file
      * @param jarFile All jar files that are compiled into apk
      * @param destFile dest file after this transform
+     *
+     * 扫描jar文件
+        @param jarFile 编译成apk的所有jar文件
+        @param destFile 转换后的目标文件
      */
     static void scanJar(File jarFile, File destFile) {
         if (jarFile) {
@@ -52,10 +60,20 @@ class ScanUtil {
                 } else if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {
                     /**
                      com/alibaba/android/arouter/core/LogisticsCenter.class
-                     如何是 LogisticsCenter.class   */
+                     如果是 LogisticsCenter.class   */
                     // mark this jar file contains LogisticsCenter.class
                     // After the scan is complete, we will generate register code into this file
+//                    标记此 jar 文件包含 LogisticsCenter.class
+//                    扫描完成后，我们会生成注册码到这个文件中
                     RegisterTransform.fileContainsInitClass = destFile
+
+
+
+                    Logger.i('fygg: getAbsolutePath : ' + RegisterTransform.fileContainsInitClass.getAbsolutePath())
+//                    logger.info("The user has configuration the module name, it was [" + moduleName + "]");
+
+                    println("fyg:: ** RegisterTransform.fileContainsInitClass.getAbsolutePath() : "+ RegisterTransform.fileContainsInitClass.getAbsolutePath())
+
                 }
             }
             file.close()

@@ -8,10 +8,15 @@ class ScanSetting {
     static final String PLUGIN_NAME = "com.alibaba.arouter"
     /**
      * The register code is generated into this class
+     *
+     *
+     * 注册码生成到这个类中
      */
     static final String GENERATE_TO_CLASS_NAME = 'com/alibaba/android/arouter/core/LogisticsCenter'
     /**
      * you know. this is the class file(or entry in jar file) name
+     *
+     * 你知道。 这是类文件（或 jar 文件中的条目）名称
      */
     static final String GENERATE_TO_CLASS_FILE_NAME = GENERATE_TO_CLASS_NAME + '.class'
     /**
@@ -33,6 +38,8 @@ class ScanSetting {
     static final String REGISTER_METHOD_NAME = 'register'
     /**
      * scan for classes which implements this interface
+     *
+     * 扫描实现此接口的类
      */
     String interfaceName = ''
 
@@ -43,11 +50,17 @@ class ScanSetting {
     /**
      * scan result for {@link #interfaceName}
      * class names in this list
+     *
+     * {@link #interfaceName} 的扫描结果
+        此列表中的类名
+
+     实现interfaceName接口的类都会 存放到 classList 中。
      */
     ArrayList<String> classList = new ArrayList<>()
 
     /**
      * constructor for arouter-auto-register settings
+     * 路由器自动注册设置的构造函数
      * @param interfaceName interface to scan
      */
     ScanSetting(String interfaceName){

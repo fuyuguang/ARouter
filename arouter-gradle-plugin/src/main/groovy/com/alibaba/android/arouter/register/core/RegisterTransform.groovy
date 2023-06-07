@@ -14,6 +14,14 @@ import org.gradle.api.Project
  * <p>
  *     1. Scan all classes to find which classes implement the specified interface
  *     2. Generate register code into class file: {@link ScanSetting#GENERATE_TO_CLASS_FILE_NAME}
+ *
+
+ 转换接口
+ 1.扫描所有类，查找哪些类实现了指定接口
+ 2.生成注册码到class文件中：
+  {@link ScanSetting#GENERATE_TO_CLASS_FILE_NAME}
+  {@link scansetting#generate_to_class_file_name}
+
  * @author billy.qi email: qiyilike@163.com
  * @since 17/3/21 11:48
  */
@@ -29,6 +37,7 @@ class RegisterTransform extends Transform {
 
     /**
      * name of this transform
+     * 此转换的名称
      * @return
      */
     @Override
@@ -43,6 +52,7 @@ class RegisterTransform extends Transform {
 
     /**
      * The plugin will scan all classes in the project
+     * 该插件将扫描项目中的所有类
      * @return
      */
     @Override
@@ -63,8 +73,10 @@ class RegisterTransform extends Transform {
                    , boolean isIncremental) throws IOException, TransformException, InterruptedException {
 
         Logger.i('Start scan register info in jar file.')
+        println 'fyg:: *****************-------- transform  --------*********************'
 
         long startTime = System.currentTimeMillis()
+        /** 左斜杠  */
         boolean leftSlash = File.separator == '/'
 
         if (!isIncremental){
@@ -79,15 +91,15 @@ class RegisterTransform extends Transform {
                 // rename jar files
                 def hexName = DigestUtils.md5Hex(jarInput.file.absolutePath)
                 if (destName.endsWith(".jar")) {
-                    //获取不包含文件类型后缀的 文件名  fyg.jar  -> fyg
+                    /** 获取不包含文件类型后缀的 文件名  fyg.jar  -> fyg  */
                     destName = destName.substring(0, destName.length() - 4)
                 }
-                // input file
+                // input file   返回内容的位置。@return 内容位置。
                 File src = jarInput.file
                 // output file                              fyg_aaafb123134    fyg_md5Hex
                 File dest = outputProvider.getContentLocation(destName + "_" + hexName, jarInput.contentTypes, jarInput.scopes, Format.JAR)
 
-                //scan jar file to find classes
+                /** scan jar file to find classes  扫描 jar 文件以查找类  */
                 if (ScanUtil.shouldProcessPreDexJar(src.absolutePath)) {
                     ScanUtil.scanJar(src, dest)
                 }
