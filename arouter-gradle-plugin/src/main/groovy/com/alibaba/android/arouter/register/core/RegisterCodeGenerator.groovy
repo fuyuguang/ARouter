@@ -30,8 +30,9 @@ class RegisterCodeGenerator {
     }
 
     /**
-     * generate code into jar file
+     * generate code into jar file  生成代码到jar文件
      * @param jarFile the jar file which contains LogisticsCenter.class
+     *                          jarFile 包含 LogisticsCenter.class 的 jar 文件
      * @return
      */
     private File insertInitCodeIntoJarFile(File jarFile) {
@@ -44,10 +45,15 @@ class RegisterCodeGenerator {
             JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(optJar))
 
             while (enumeration.hasMoreElements()) {
+                /** java类  */
                 JarEntry jarEntry = (JarEntry) enumeration.nextElement()
+                /** java全类名 */
                 String entryName = jarEntry.getName()
+                /** 压缩包实体类  */
                 ZipEntry zipEntry = new ZipEntry(entryName)
+                /** 从 jar包中 获取 单个 java类实体  */
                 InputStream inputStream = file.getInputStream(jarEntry)
+
                 jarOutputStream.putNextEntry(zipEntry)
                 //GENERATE_TO_CLASS_NAME = 'com/alibaba/android/arouter/core/LogisticsCenter'
                 if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {
@@ -73,7 +79,7 @@ class RegisterCodeGenerator {
         return jarFile
     }
 
-    //refer hack class when object init
+    //refer hack class when object init         对象初始化时引用 hack 类
     private byte[] referHackWhenInit(InputStream inputStream) {
         ClassReader cr = new ClassReader(inputStream)
         ClassWriter cw = new ClassWriter(cr, 0)
@@ -127,7 +133,9 @@ class RegisterCodeGenerator {
                          register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulejava");
                          register("com.alibaba.android.arouter.routes.ARouter$$Root$$modulekotlin");
                          register("com.alibaba.android.arouter.routes.ARouter$$Root$$arouterapi");
+
                          register("com.alibaba.android.arouter.routes.ARouter$$Interceptors$$modulejava");
+
                          register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulejava");
                          register("com.alibaba.android.arouter.routes.ARouter$$Providers$$modulekotlin");
                          register("com.alibaba.android.arouter.routes.ARouter$$Providers$$arouterapi");

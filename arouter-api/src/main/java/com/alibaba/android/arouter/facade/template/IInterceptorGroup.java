@@ -4,6 +4,7 @@ import java.util.Map;
 
 /**
  * Template of interceptor group.
+ * 拦截器组模板。
  *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.0

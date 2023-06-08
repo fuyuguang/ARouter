@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 /**
  * A container that contains the roadmap.
+ * 包含路线图的容器。
  *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.1.0
@@ -30,18 +31,18 @@ import java.util.ArrayList;
 public final class Postcard extends RouteMeta {
     // Base
     private Uri uri;
-    private Object tag;             // A tag prepare for some thing wrong. inner params, DO NOT USE!
-    private Bundle mBundle;         // Data to transform
-    private int flags = 0;         // Flags of route
-    private int timeout = 300;      // Navigation timeout, TimeUnit.Second
-    private IProvider provider;     // It will be set value, if this postcard was provider.
+    private Object tag;             // 标签为一些错误做准备。 内部参数，请勿使用！ A tag prepare for some thing wrong. inner params, DO NOT USE!
+    private Bundle mBundle;         // 要转换的数据 Data to transform
+    private int flags = 0;         // 路线标志 Flags of route
+    private int timeout = 300;      // 导航超时 Navigation timeout, TimeUnit.Second
+    private IProvider provider;     // 如果这张明信片是提供者，它将被设定值。 It will be set value, if this postcard was provider.
     private boolean greenChannel;
     private SerializationService serializationService;
-    private Context context;        // May application or activity, check instance type before use it.
+    private Context context;        // 可能是应用程序或活动，在使用前检查实例类型。 May application or activity, check instance type before use it.
     private String action;
 
     // Animation
-    private Bundle optionsCompat;    // The transition animation of activity
+    private Bundle optionsCompat;    //Activity的过渡动画  The transition animation of activity
     private int enterAnim = -1;
     private int exitAnim = -1;
 

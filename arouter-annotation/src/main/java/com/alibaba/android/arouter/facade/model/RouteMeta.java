@@ -11,23 +11,25 @@ import javax.lang.model.element.Element;
 /**
  * It contains basic route information.
  *
+ * 它包含基本的路线信息。
+ *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.0
  * @since 16/8/24 09:45
  */
 public class RouteMeta {
-    private RouteType type;         // Type of route
-    private Element rawType;        // Raw type of route
-    private Class<?> destination;   // Destination
-    private String path;            // Path of route
-    private String group;           // Group of route
-    private int priority = -1;      // The smaller the number, the higher the priority
-    private int extra;              // Extra data
+    private RouteType type;         // Type of route  路线类型
+    private Element rawType;        // Raw type of route   原始路线类型
+    private Class<?> destination;   // Destination  目的地
+    private String path;            // Path of route  航线路径
+    private String group;           // Group of route 路线组
+    private int priority = -1;      //数字越小，优先级越高  The smaller the number, the higher the priority
+    private int extra;              //额外数据 Extra data
     /** 注解名 ： 真实的类型  */
-    private Map<String, Integer> paramsType;  // Param type
+    private Map<String, Integer> paramsType;  //参数类型 Param type
     private String name;
     /** 注解名 ： 真实的注解类型  */
-    private Map<String, Autowired> injectConfig;  // Cache inject config.
+    private Map<String, Autowired> injectConfig;  //缓存注入配置。 Cache inject config.
 
     public RouteMeta() {
     }

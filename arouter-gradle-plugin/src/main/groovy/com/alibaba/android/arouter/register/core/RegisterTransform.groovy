@@ -9,6 +9,8 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
+import java.util.function.Consumer
+
 /**
  * transform api
  * <p>
@@ -88,6 +90,8 @@ class RegisterTransform extends Transform {
             // scan all jars
             input.jarInputs.each { JarInput jarInput ->
                 String destName = jarInput.name
+
+                println("fyg:: input.jarInputs  \n jarInput.name : "+ jarInput.name)
                 // rename jar files
                 def hexName = DigestUtils.md5Hex(jarInput.file.absolutePath)
                 if (destName.endsWith(".jar")) {
@@ -103,9 +107,14 @@ class RegisterTransform extends Transform {
                 if (ScanUtil.shouldProcessPreDexJar(src.absolutePath)) {
                     ScanUtil.scanJar(src, dest)
                 }
+
+                println("fyg:: ** src : "+ src.getAbsolutePath()+"   dest : "+dest.getAbsolutePath()+"  destName : "+destName)
                 FileUtils.copyFile(src, dest)
 
             }
+
+
+
             // scan class files
             input.directoryInputs.each { DirectoryInput directoryInput ->
                 File dest = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
@@ -113,9 +122,14 @@ class RegisterTransform extends Transform {
                 /** 目录名后添加 /  */
                 if (!root.endsWith(File.separator))
                     root += File.separator
+
+                println("fyg:: outputProvider.getContentLocation  \n directoryInput.name : "+ directoryInput.name+"\n       directoryInput.contentTypes : "+directoryInput.contentTypes + "\n    directoryInput.scopes : "+directoryInput.scopes + "\n Format.DIRECTORY :"+Format.DIRECTORY)
                 directoryInput.file.eachFileRecurse { File file ->
 
                     def path = file.absolutePath.replace(root, '')
+
+                    println("fyg:: ** directoryInput.file.eachFileRecurse :\n  path:"+ path+"\n       root : "+root + "\n    file : "+file.getAbsolutePath()+"\n  dest : "+dest.getAbsolutePath())
+
                     if (!leftSlash) {
                         //转换 window 的换行符
                         path = path.replaceAll("\\\\", "/")
@@ -124,6 +138,7 @@ class RegisterTransform extends Transform {
                       文件在这个包下  ：
                      com/alibaba/android/arouter/routes/  */
                     if(file.isFile() && ScanUtil.shouldProcessClass(path)){
+                        println("fyg:: ScanUtil.shouldProcessClass(path)"+ path+"       root : "+root + "    file : "+file.getAbsolutePath())
                         ScanUtil.scanClass(file)
                     }
                 }
@@ -132,6 +147,14 @@ class RegisterTransform extends Transform {
                 FileUtils.copyDirectory(directoryInput.file, dest)
             }
         }
+
+        RegisterTransform.registerList.forEach(new Consumer<ScanSetting>(){
+            void accept(ScanSetting item){
+                println("")
+                println("fyg::  RegisterTransform.registerList : "+item.interfaceName+"\n  "+item.classList)
+                println("")
+            }
+        })
 
         Logger.i('Scan finish, current cost time ' + (System.currentTimeMillis() - startTime) + "ms")
 

@@ -9,6 +9,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 /**
  * Simple version of AutoRegister plugin for ARouter
+ * 用于 ARouter 的 AutoRegister 插件的简单版本
  * @author billy.qi email: qiyilike@163.com
  * @since 17/12/06 15:35
  */

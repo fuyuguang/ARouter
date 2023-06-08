@@ -6,6 +6,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 
+import java.util.function.Consumer
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
@@ -76,6 +77,9 @@ class ScanUtil {
 
                 }
             }
+
+
+
             file.close()
         }
     }
