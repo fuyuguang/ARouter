@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 /**
  * Used for get type of target object.
+ * 用于获取目标对象的类型。
  *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.0

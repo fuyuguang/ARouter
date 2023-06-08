@@ -1,5 +1,18 @@
 apply plugin: 'com.android.library'
 
+dependencies {
+//    annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'
+//    annotationProcessor ':arouter-compiler'
+    annotationProcessor project(':arouter-compiler')
+
+//    api 'com.alibaba:arouter-annotation:1.0.6'
+    api project(':arouter-annotation')
+
+    implementation "com.android.support:support-v4:${SUPPORT_LIB_VERSION}"
+}
+
+apply from: rootProject.file('gradle/publish.gradle')
+
 android {
     compileSdkVersion Integer.parseInt(COMPILE_SDK_VERSION)
     buildToolsVersion BUILDTOOLS_VERSION
@@ -29,13 +42,3 @@ android {
         lintOptions { abortOnError false }
     }
 }
-
-dependencies {
-//    annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'
-    annotationProcessor ':arouter-compiler'
-//    api 'com.alibaba:arouter-annotation:1.0.6'
-    api project(':arouter-annotation')
-    implementation "com.android.support:support-v4:${SUPPORT_LIB_VERSION}"
-}
-
-apply from: rootProject.file('gradle/publish.gradle')

@@ -19,12 +19,8 @@ public class PluginLaunch implements Plugin<Project> {
     public void apply(Project project) {
         def isApp = project.plugins.hasPlugin(AppPlugin)
         //only application module needs this plugin to generate register code
-        println("fyg:: PluginLaunch start")
         if (isApp) {
             Logger.make(project)
-
-            println("fyg:: PluginLaunch start   isApp  : "+isApp)
-
 
             Logger.i('Project enable arouter-register plugin')
 

@@ -1,27 +1,25 @@
 apply plugin: 'com.android.library'
-
 dependencies {
     implementation project(':arouter-annotation')
     implementation project(':arouter-api')
-    implementation "com.android.support:appcompat-v7:${SUPPORT_LIB_VERSION}"
     annotationProcessor project(':arouter-compiler')
-
+    implementation "com.android.support:appcompat-v7:${SUPPORT_LIB_VERSION}"
     implementation 'com.alibaba:fastjson:1.2.48'
 }
 android {
-    compileSdkVersion Integer.parseInt(COMPILE_SDK_VERSION)
-    buildToolsVersion BUILDTOOLS_VERSION
-
     defaultConfig {
         minSdkVersion Integer.parseInt(MIN_SDK_VERSION)
         targetSdkVersion Integer.parseInt(TARGET_SDK_VERSION)
-
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [ AROUTER_MODULE_NAME : project.getName() ]
             }
         }
     }
+
+    compileSdkVersion Integer.parseInt(COMPILE_SDK_VERSION)
+    buildToolsVersion BUILDTOOLS_VERSION
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

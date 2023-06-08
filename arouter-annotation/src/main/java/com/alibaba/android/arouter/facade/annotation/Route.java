@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Mark a page can be route by router.
+ * 标记一个页面可以通过路由器路由。
  *
  * @author Alex <a href="mailto:zhilong.liu@aliyun.com">Contact me.</a>
  * @version 1.0

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-
 dependencies {
     implementation project(':arouter-annotation')
     implementation project(':arouter-api')
